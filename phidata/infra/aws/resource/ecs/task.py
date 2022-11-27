@@ -8,12 +8,12 @@ from phidata.utils.cli_console import print_info, print_error
 from phidata.utils.log import logger
 
 
-class EcsTask(AwsResource):
+class EcsTaskDefinition(AwsResource):
     """
     # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/ecs.html
     """
 
-    resource_type = "EcsTask"
+    resource_type = "EcsTaskDefinition"
     service_name = "ecs"
 
     # Name of the task definition.
@@ -50,7 +50,7 @@ class EcsTask(AwsResource):
         return self.family or self.name
 
     def _create(self, aws_client: AwsApiClient) -> bool:
-        """Create EcsTask"""
+        """Create EcsTaskDefinition"""
         print_info(f"Creating {self.get_resource_type()}: {self.get_resource_name()}")
 
         # create a dict of args which are not null, otherwise aws type validation fails
@@ -92,19 +92,19 @@ class EcsTask(AwsResource):
         if self.runtime_platform is not None:
             not_null_args["runtimePlatform"] = self.runtime_platform
 
-        # Register EcsTask
+        # Register EcsTaskDefinition
         service_client = self.get_service_client(aws_client)
         try:
             create_response = service_client.register_task_definition(
                 family=self.get_task_family(),
                 **not_null_args,
             )
-            logger.debug(f"EcsTask: {create_response}")
+            logger.debug(f"EcsTaskDefinition: {create_response}")
             resource_dict = create_response.get("taskDefinition", {})
 
             # Validate resource creation
             if resource_dict is not None:
-                print_info(f"EcsTask created: {self.get_resource_name()}")
+                print_info(f"EcsTaskDefinition created: {self.get_resource_name()}")
                 self.active_resource = create_response
                 return True
         except Exception as e:
@@ -113,7 +113,7 @@ class EcsTask(AwsResource):
         return False
 
     def _read(self, aws_client: AwsApiClient) -> Optional[Any]:
-        """Read EcsTask"""
+        """Read EcsTaskDefinition"""
         from botocore.exceptions import ClientError
 
         logger.debug(f"Reading {self.get_resource_type()}: {self.get_resource_name()}")
@@ -122,7 +122,7 @@ class EcsTask(AwsResource):
             describe_response = service_client.describe_task_definition(
                 taskDefinition=self.get_task_family()
             )
-            logger.debug(f"EcsTask: {describe_response}")
+            logger.debug(f"EcsTaskDefinition: {describe_response}")
             resource = describe_response.get("taskDefinition", None)
             if resource is not None:
                 # compare the task definition with the current state
@@ -138,7 +138,7 @@ class EcsTask(AwsResource):
         return self.active_resource
 
     def _delete(self, aws_client: AwsApiClient) -> bool:
-        """Delete EcsTask"""
+        """Delete EcsTaskDefinition"""
         print_info(f"Deleting {self.get_resource_type()}: {self.get_resource_name()}")
 
         service_client = self.get_service_client(aws_client)
@@ -148,7 +148,7 @@ class EcsTask(AwsResource):
             list_response = service_client.list_task_definitions(
                 familyPrefix=self.get_task_family(), sort="DESC"
             )
-            logger.debug(f"EcsTask: {list_response}")
+            logger.debug(f"EcsTaskDefinition: {list_response}")
             task_definition_arns = list_response.get("taskDefinitionArns", [])
             if task_definition_arns:
                 # Delete all revisions
@@ -156,7 +156,7 @@ class EcsTask(AwsResource):
                     service_client.deregister_task_definition(
                         taskDefinition=task_definition_arn
                     )
-                print_info(f"EcsTask deleted: {self.get_resource_name()}")
+                print_info(f"EcsTaskDefinition deleted: {self.get_resource_name()}")
                 return True
         except Exception as e:
             print_error(f"{self.get_resource_type()} could not be deleted.")
@@ -165,7 +165,7 @@ class EcsTask(AwsResource):
         return False
 
     def _update(self, aws_client: AwsApiClient) -> bool:
-        """Update EcsTask"""
+        """Update EcsTaskDefinition"""
         print_info(f"Updating {self.get_resource_type()}: {self.get_resource_name()}")
 
         return self._create(aws_client)
