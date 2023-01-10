@@ -1,7 +1,8 @@
 from typing import Optional, Any, List
 from typing_extensions import Literal
 
-from phidata.asset.table.s3.s3_table import S3Table, S3TableFormat
+from phidata.asset.table.s3.s3_table import S3Table, S3TableArgs, S3TableFormat
+from phidata.check.df.dataframe_check import DataFrameCheck
 from phidata.infra.aws.resource.s3.bucket import S3Bucket
 
 
@@ -11,9 +12,13 @@ class CsvTable(S3Table):
         # Table Name: required
         name: str,
         # Database for the table
-        db_name: str = "default",
+        database: str = "default",
         # DataModel for this table
         data_model: Optional[Any] = None,
+        # Checks to run before reading from disk
+        read_checks: Optional[List[DataFrameCheck]] = None,
+        # Checks to run before writing to disk
+        write_checks: Optional[List[DataFrameCheck]] = None,
         # S3 Bucket
         bucket: Optional[S3Bucket] = None,
         # S3 Bucket Name
@@ -57,8 +62,6 @@ class CsvTable(S3Table):
         write_mode: Literal[
             "delete_matching", "overwrite_or_ignore", "error"
         ] = "delete_matching",
-        # If False, directories will not be created. This can be useful for filesystems that do not require directories.
-        create_dir: Optional[bool] = None,
         version: Optional[str] = None,
         enabled: bool = True,
         **kwargs,
@@ -66,8 +69,10 @@ class CsvTable(S3Table):
         super().__init__(
             name=name,
             table_format=S3TableFormat.CSV,
-            db_name=db_name,
+            database=database,
             data_model=data_model,
+            read_checks=read_checks,
+            write_checks=write_checks,
             bucket=bucket,
             bucket_name=bucket_name,
             path=path,
@@ -81,7 +86,6 @@ class CsvTable(S3Table):
             min_rows_per_group=min_rows_per_group,
             max_rows_per_group=max_rows_per_group,
             write_mode=write_mode,
-            create_dir=create_dir,
             version=version,
             enabled=enabled,
             **kwargs,

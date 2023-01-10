@@ -22,7 +22,7 @@ class S3TableArgs(AwsAssetArgs):
     name: str
     # Database for the table
     database: str = "default"
-    # S3 Table Format
+    # Table Format
     table_format: S3TableFormat
 
     # Checks to run before reading from disk
@@ -77,13 +77,13 @@ class S3TableArgs(AwsAssetArgs):
 
 
 class S3Table(AwsAsset):
-    """Base Class for Sql tables"""
+    """Base Class for S3 tables"""
 
     def __init__(
         self,
         # Table Name: required
         name: str,
-        # S3 Table Format: required
+        # Table Format: required
         table_format: S3TableFormat,
         # Database for the table
         database: str = "default",
@@ -173,30 +173,6 @@ class S3Table(AwsAsset):
         except Exception as e:
             logger.error(f"Args for {self.name} are not valid")
             raise
-
-    @property
-    def table_location(self) -> str:
-        if self.args is None:
-            raise ValueError("args not set")
-
-        if self.args.path is not None:
-            return self.args.path
-        else:
-            if self.args.bucket_name is not None:
-                return "{}/{}{}/{}".format(
-                    self.args.bucket_name,
-                    f"{self.args.top_level_dir}/" if self.args.top_level_dir else "",
-                    self.args.database,
-                    self.args.name,
-                )
-            if self.args.bucket is not None:
-                return "{}/{}{}/{}".format(
-                    self.args.bucket.name,
-                    f"{self.args.top_level_dir}/" if self.args.top_level_dir else "",
-                    self.args.database,
-                    self.args.name,
-                )
-        return ""
 
     @property
     def database(self) -> Optional[str]:
@@ -346,18 +322,26 @@ class S3Table(AwsAsset):
         if self.args and write_mode:
             self.args.write_mode = write_mode
 
-    ######################################################
-    ## Get FileSystem
-    ######################################################
-
-    def _get_fs(self) -> Optional[Any]:
-        from pyarrow import fs
-
-        logger.debug("initializing S3FileSystem")
-        if self.aws_region is not None:
-            return fs.S3FileSystem(region=self.aws_region)
+    @property
+    def table_location(self) -> str:
+        if self.path is not None:
+            return self.path
         else:
-            return fs.S3FileSystem()
+            if self.bucket_name is not None:
+                return "{}/{}{}/{}".format(
+                    self.bucket_name,
+                    f"{self.top_level_dir}/" if self.top_level_dir else "",
+                    self.database,
+                    self.name,
+                )
+            if self.bucket is not None:
+                return "{}/{}{}/{}".format(
+                    self.bucket.name,
+                    f"{self.top_level_dir}/" if self.top_level_dir else "",
+                    self.database,
+                    self.name,
+                )
+        return ""
 
     ######################################################
     ## Validate data asset
