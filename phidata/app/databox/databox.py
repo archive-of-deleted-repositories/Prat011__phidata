@@ -415,11 +415,6 @@ class Databox(PhidataApp):
         service_load_balancer_ip: Optional[str] = None,
         service_load_balancer_source_ranges: Optional[List[str]] = None,
         service_allocate_load_balancer_node_ports: Optional[bool] = None,
-        # Install phidata in development mode,
-        install_phidata_dev: bool = False,
-        phidata_volume_name: str = "databox-phidata-volume",
-        phidata_dir_path: Path = Path.home().joinpath("lab", "phidata"),
-        phidata_dir_container_path: str = "/phidata",
         # K8s RBAC Configuration,
         use_rbac: bool = False,
         # Create a Namespace with name ns_name & default values,
@@ -473,6 +468,11 @@ class Databox(PhidataApp):
         print_env_on_load: bool = True,
         # If True, skip resource creation if active resources with the same name exist.,
         use_cache: bool = True,
+        # Install phidata in development mode,
+        install_phidata_dev: bool = False,
+        phidata_volume_name: str = "databox-phidata-volume",
+        phidata_dir_path: Path = Path.home().joinpath("lab", "phidata"),
+        phidata_dir_container_path: str = "/phidata",
         **kwargs,
     ):
         super().__init__()
@@ -585,10 +585,6 @@ class Databox(PhidataApp):
                 service_load_balancer_ip=service_load_balancer_ip,
                 service_load_balancer_source_ranges=service_load_balancer_source_ranges,
                 service_allocate_load_balancer_node_ports=service_allocate_load_balancer_node_ports,
-                install_phidata_dev=install_phidata_dev,
-                phidata_volume_name=phidata_volume_name,
-                phidata_dir_path=phidata_dir_path,
-                phidata_dir_container_path=phidata_dir_container_path,
                 use_rbac=use_rbac,
                 ns_name=ns_name,
                 namespace=namespace,
@@ -613,6 +609,10 @@ class Databox(PhidataApp):
                 extra_crds=extra_crds,
                 print_env_on_load=print_env_on_load,
                 use_cache=use_cache,
+                install_phidata_dev=install_phidata_dev,
+                phidata_volume_name=phidata_volume_name,
+                phidata_dir_path=phidata_dir_path,
+                phidata_dir_container_path=phidata_dir_container_path,
                 extra_kwargs=kwargs,
             )
         except Exception as e:
@@ -1102,10 +1102,10 @@ class Databox(PhidataApp):
                 if workspace_volume_name is None:
                     if workspace_name is not None:
                         workspace_volume_name = get_default_volume_name(
-                            f"airflow-{workspace_name}-ws"
+                            f"databox-{workspace_name}-ws"
                         )
                     else:
-                        workspace_volume_name = get_default_volume_name("airflow-ws")
+                        workspace_volume_name = get_default_volume_name("databox-ws")
                 logger.debug(f"Mounting: {workspace_volume_name}")
                 logger.debug(f"\tto: {workspace_volume_container_path_str}")
                 container_volumes[workspace_volume_name] = {
@@ -1650,10 +1650,10 @@ class Databox(PhidataApp):
             if workspace_volume_name is None:
                 if workspace_name is not None:
                     workspace_volume_name = get_default_volume_name(
-                        f"airflow-{workspace_name}-ws"
+                        f"databox-{workspace_name}-ws"
                     )
                 else:
-                    workspace_volume_name = get_default_volume_name("airflow-ws")
+                    workspace_volume_name = get_default_volume_name("databox-ws")
 
             # Mount workspace volume as EmptyDir then use git-sync to sync the workspace from github
             if (
@@ -1765,7 +1765,7 @@ class Databox(PhidataApp):
             volumes=volumes if len(volumes) > 0 else None,
             labels=container_labels,
         )
-        containers.append(databox_container)
+        containers.insert(0, databox_container)
 
         # Set default container for kubectl commands
         # https://kubernetes.io/docs/reference/labels-annotations-taints/#kubectl-kubernetes-io-default-container
