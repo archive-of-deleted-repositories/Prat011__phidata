@@ -20,8 +20,13 @@ class PrometheusArgs(PhidataAppArgs):
     command: Optional[Union[str, List]] = None
 
     # -*- Prometheus Configuration
-    scrape_interval: Optional[int] = None
-    scrape_timeout: Optional[int]  = 10
+    # Mount resources volume. Only on docker
+    # resources_dir is relative to the workspace_root
+    # resources_dir contains all the config files required by Prometheus.
+    # resources_dir is mounted to the `/etc/prometheus` directory on the container
+    mount_resources: bool = False
+    resources_dir: str = "/workspace/dev/monitoring/resources"
+    resources_dir_container_path: str = "/etc/prometheus"
 
 class Prometheus(PhidataApp):
     def __init__(
@@ -41,8 +46,9 @@ class Prometheus(PhidataApp):
         # Path to the requirements.txt file relative to the workspace_root,
         requirements_file: str = "requirements.txt",
         # -*- Prometheus Configuration
-        scrape_interval: Optional[int] = None,
-        scrape_timeout: Optional[int]  = 10,
+        mount_resources: bool = False,
+        resources_dir: str = "/workspace/dev/monitoring/resources",
+        resources_dir_container_path: str = "/etc/prometheus",
         # -*- Container Configuration,
         container_name: Optional[str] = None,
         # Overwrite the PYTHONPATH env var,
@@ -265,8 +271,9 @@ class Prometheus(PhidataApp):
                 command=command,
                 install_requirements=install_requirements,
                 requirements_file=requirements_file,
-                scrape_interval=scrape_interval,
-                scrape_timeout=scrape_timeout,
+                mount_resources=mount_resources,
+                resources_dir=resources_dir,
+                resources_dir_container_path=resources_dir_container_path,
                 container_name=container_name,
                 python_path=python_path,
                 add_python_path=add_python_path,
@@ -507,6 +514,18 @@ class Prometheus(PhidataApp):
             else:
                 logger.error(f"{self.args.workspace_volume_type.value} not supported")
                 return None
+
+        # Create a volume for the resources
+        if self.args.mount_resources:
+            resources_dir_path = str(
+                self.workspace_root_path.joinpath(self.args.resources_dir)
+            )
+            logger.debug(f"Mounting: {resources_dir_path}")
+            logger.debug(f"\tto: {self.args.resources_dir_container_path}")
+            container_volumes[resources_dir_path] = {
+                "bind": self.args.resources_dir_container_path,
+                "mode": "ro",
+            }
 
         # Container Ports
         # container_ports is a dictionary which configures the ports to bind
