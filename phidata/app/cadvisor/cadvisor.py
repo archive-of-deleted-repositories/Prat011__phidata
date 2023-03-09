@@ -503,6 +503,49 @@ class Cadvisor(PhidataApp):
                 logger.error(f"{self.args.workspace_volume_type.value} not supported")
                 return None
 
+        mount_docker_socket = True
+        if mount_docker_socket:
+            docker_socket_host_path = "/var/run"
+            docker_socket_container_path_str = "/var/run"
+            logger.debug(f"Mounting: {docker_socket_host_path}")
+            logger.debug(f"\tto: {docker_socket_container_path_str}")
+            container_volumes[docker_socket_host_path] = {
+                "bind": docker_socket_container_path_str,
+                "mode": "ro",
+            }
+
+        mount_docker_lib = True
+        if mount_docker_lib:
+            docker_lib_host_path = "/var/lib/docker"
+            docker_lib_container_path_str = "/var/lib/docker"
+            logger.debug(f"Mounting: {docker_lib_host_path}")
+            logger.debug(f"\tto: {docker_lib_container_path_str}")
+            container_volumes[docker_lib_host_path] = {
+                "bind": docker_lib_container_path_str,
+                "mode": "ro",
+            }
+
+        # mount_docker_disk = True
+        # if mount_docker_disk:
+        #     docker_disk_host_path = "/dev/disk"
+        #     docker_disk_container_path_str = "/dev/disk"
+        #     logger.debug(f"Mounting: {docker_disk_host_path}")
+        #     logger.debug(f"\tto: {docker_disk_container_path_str}")
+        #     container_volumes[docker_disk_host_path] = {
+        #         "bind": docker_disk_container_path_str,
+        #         "mode": "ro",
+        #    }
+
+        mount_docker_sys = True
+        if mount_docker_sys:
+            docker_sys_host_path = "/sys"
+            docker_sys_container_path_str = "/sys"
+            logger.debug(f"Mounting: {docker_sys_host_path}")
+            logger.debug(f"\tto: {docker_sys_container_path_str}")
+            container_volumes[docker_sys_host_path] = {
+                "bind": docker_sys_container_path_str,
+                "mode": "ro",
+            }
         # Container Ports
         # container_ports is a dictionary which configures the ports to bind
         # inside the container. The key is the port to bind inside the container
@@ -541,6 +584,7 @@ class Cadvisor(PhidataApp):
             volumes=container_volumes if len(container_volumes) > 0 else None,
             working_dir=self.args.container_working_dir,
             use_cache=self.args.use_cache,
+            # devices=["/dev/kmsg"],
         )
 
         docker_rg = DockerResourceGroup(
