@@ -25,6 +25,7 @@ class GrafanaArgs(PhidataAppArgs):
     resources_dir: str = "/workspace/dev/monitoring/resources"
     resources_dir_container_path: str = "/etc/grafana"
 
+
 class Grafana(PhidataApp):
     def __init__(
         self,
@@ -269,7 +270,7 @@ class Grafana(PhidataApp):
                 command=command,
                 install_requirements=install_requirements,
                 requirements_file=requirements_file,
-                grafana_config = grafana_config,
+                grafana_config=grafana_config,
                 mount_resources=mount_resources,
                 resources_dir=resources_dir,
                 resources_dir_container_path=resources_dir_container_path,
@@ -375,7 +376,6 @@ class Grafana(PhidataApp):
     ######################################################
 
     def get_docker_rg(self, docker_build_context: Any) -> Optional[Any]:
-
         app_name = self.args.name
         logger.debug(f"Building {app_name} DockerResourceGroup")
 
@@ -549,7 +549,6 @@ class Grafana(PhidataApp):
                 str(self.args.container_port)
             ] = self.args.container_host_port
 
-
         # container_cmd: List[str]
         # if isinstance(self.args.command, str):
         #     container_cmd = self.args.command.split(" ")
@@ -609,7 +608,6 @@ class Grafana(PhidataApp):
     ######################################################
 
     def get_k8s_rg(self, k8s_build_context: Any) -> Optional[Any]:
-
         app_name = self.args.name
         logger.debug(f"Building {app_name} K8sResourceGroup")
 
