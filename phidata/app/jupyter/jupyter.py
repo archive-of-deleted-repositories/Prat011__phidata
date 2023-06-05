@@ -268,13 +268,13 @@ class Jupyter(AwsApp, DockerApp, K8sApp):
         # -*- ECS Configuration,
         ecs_cluster: Optional[Any] = None,
         ecs_launch_type: str = "FARGATE",
-        ecs_task_cpu: str = "512",
-        ecs_task_memory: str = "1024",
+        ecs_task_cpu: str = "1024",
+        ecs_task_memory: str = "2048",
         ecs_service_count: int = 1,
         assign_public_ip: bool = True,
         ecs_enable_exec: bool = True,
         # -*- LoadBalancer Configuration,
-        enable_load_balancer: bool = True,
+        enable_load_balancer: bool = False,
         load_balancer: Optional[Any] = None,
         # HTTP or HTTPS,
         load_balancer_protocol: str = "HTTP",
@@ -441,7 +441,7 @@ class Jupyter(AwsApp, DockerApp, K8sApp):
                 waiter_max_attempts=waiter_max_attempts,
                 use_cache=use_cache,
                 print_env_on_load=print_env_on_load,
-                extra_kwargs=extra_kwargs,
+                **extra_kwargs,
             )
         except Exception as e:
             logger.error(f"Args for {self.name} are not valid: {e}")
