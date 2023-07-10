@@ -1,10 +1,10 @@
 from typing import List, Optional
 
 from phi.docker.app.base import DockerApp
-from phi.docker.context import DockerBuildContext
+from phi.docker.app.context import DockerBuildContext
 from phi.docker.api_client import DockerApiClient
 from phi.docker.resource.base import DockerResource
-from phi.infra.resource_group import InfraResourceGroup
+from phi.infra.resource.group import InfraResourceGroup
 from phi.workspace.settings import WorkspaceSettings
 from phi.utils.log import logger
 
