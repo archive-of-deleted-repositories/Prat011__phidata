@@ -3,6 +3,7 @@ from typing import Iterator, List
 from phi.document import Document
 from phi.document.reader.website import WebsiteReader
 from phi.knowledge.base import KnowledgeBase
+from phi.utils.log import logger
 
 
 class WebsiteKnowledgeBase(KnowledgeBase):
@@ -19,4 +20,5 @@ class WebsiteKnowledgeBase(KnowledgeBase):
         """
 
         for _url in self.urls:
+            logger.debug(self.reader.read(url=_url))
             yield self.reader.read(url=_url)
