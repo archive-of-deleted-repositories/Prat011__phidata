@@ -34,8 +34,8 @@ class Jupyter(DockerApp):
     # Used to set the JUPYTER_CONFIG_FILE env var and is added to the command using `--config`
     # Defaults to /jupyter_lab_config.py which is added in the "phidata/jupyter" image
     jupyter_config_file: str = "/jupyter_lab_config.py"
-    # Absolute path to the notebook directory,
-    # Defaults to the workspace_root if mount_workspace = True else "/",
+    # Absolute path to the notebook directory
+    # Defaults to the workspace_root if mount_workspace = True else "/"
     notebook_dir: Optional[str] = None
 
     def get_container_env(self, container_context: ContainerContext) -> Dict[str, str]:
