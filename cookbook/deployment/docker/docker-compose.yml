@@ -27,7 +27,7 @@ services:
         condition: service_healthy
     environment:
       - DB_URL=postgresql+psycopg2://ai:ai@pgvector:5432/ai
-      - OPENAI_API_KEY=***REMOVED***abcdef # replace with your OpenAI API key
+      - OPENAI_API_KEY=***REMOVED*** # replace with your OpenAI API key
     volumes:
       - ./data/pdfs:/app/data/pdfs
 
