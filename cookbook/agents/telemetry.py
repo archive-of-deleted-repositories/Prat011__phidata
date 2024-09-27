@@ -7,7 +7,7 @@ from phi.tools.yfinance import YFinanceTools
 from phi.storage.agent.postgres import PgAgentStorage
 
 agent = Agent(
-    model=OpenAIChat(model="gpt-4o"),
+    model=OpenAIChat(id="gpt-4o"),
     tools=[YFinanceTools(stock_price=True)],
     show_tool_calls=True,
     markdown=True,
@@ -16,8 +16,8 @@ agent = Agent(
     storage=PgAgentStorage(table_name="agent_sessions", db_url="postgresql+psycopg://ai:ai@localhost:5532/ai"),
 )
 
-run1: RunResponse = agent.run("What is the stock price of NVDA")  # type: ignore
-pprint(run1)
+# run1: RunResponse = agent.run("What is the stock price of NVDA")  # type: ignore
+# pprint(run1)
 # print("------------*******************------------")
 # print(run)
 # print("------------*******************------------")
@@ -27,14 +27,26 @@ pprint(run1)
 #     print(m)
 #     print("---")
 
-# run: Iterator[RunResponse] = agent.run("What is the stock price of NVDA", stream=True)
-# for chunk in run:
-#     print(chunk.content)
+# run: RunResponse = agent.run("What is the stock price of NVDA")
+# pprint(run.content)
+
+run_stream: Iterator[RunResponse] = agent.run(
+    "What is the stock price of NVDA", stream=True, stream_intermediate_steps=True
+)
+for chunk in run_stream:
+    print("---")
+    pprint(chunk.model_dump(exclude={"messages"}))
+    print("---")
+
 
 # async def main():
-#     async for chunk in await agent.arun("What is the stock price of NVDA", stream=True):
-#         print(chunk.content)
-
+#     run: RunResponse = await agent.arun("What is the stock price of NVDA and TSLA")
+#     pprint(run)
+#     # async for chunk in await agent.arun("What is the stock price of NVDA and TSLA", stream=True):
+#     #     print(chunk.content)
+#
+#
 # asyncio.run(main())
-# agent.create_session()
-# agent.print_response("What is the stock price of NVDA?")
+
+# agent.print_response("What is the stock price of NVDA and TSLA?")
+# agent.print_response("What is the stock price of NVDA and TSLA?", stream=True)
