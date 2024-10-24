@@ -18,6 +18,5 @@ agent = Agent(
     knowledge_base=knowledge_base,
     use_tools=True,
     show_tool_calls=True,
-    debug_mode=True,
 )
 agent.print_response("How to make Thai curry?", markdown=True)
